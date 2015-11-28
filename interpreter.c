@@ -199,13 +199,15 @@ Value *lookUpSymbol(Value *expr, Frame *currentFrame)
 {
   Value *bindingsHead;
   Frame *frameHead = currentFrame;
-  // iterates through bindings of frame
+  // iterates through bindings of every frame
   while (frameHead != NULL)
   {
+    //the outter while loop traverse the frames
     bindingsHead = frameHead->bindings;
     //while the bindings is not null for current frame look for value associated with variable
     while (!isNull(bindingsHead))
     {
+      //the inner while loop traverses all the items in a frame's bindings
       if(isNull(car(bindingsHead)))
       {
         evaluationError(4);
@@ -224,7 +226,9 @@ Value *lookUpSymbol(Value *expr, Frame *currentFrame)
     }
     frameHead = frameHead->parent;
   }
+  //if the value for a given symbol is not found throw an evaluation error
   evaluationError(3);
+  //Should never reach this case b/c function will print error msg & texit first
   return expr;
 }
 
@@ -237,29 +241,26 @@ Value *evalIf(Value *args, Frame *frame)
     evaluationError(0);
   }
   Value *boolExpr = car(args);
-  //if the boolExpr is not BOOL_TYPE, eval to find out #t or #f
+  //if the boolExpr is not already BOOL_TYPE, eval to find out #t or #f
   if (boolExpr->type != BOOL_TYPE )
   {
     boolExpr= car(eval(boolExpr, frame));
     //if it doesn't evaluate to a BOOL_TYPE that means that wrong input was provided
     if(boolExpr->type != BOOL_TYPE)
     {
-      printf("Hit eval error in evalIf \n");
+      //printf("Hit eval error in evalIf \n");
       evaluationError(1);
     }
   }
+  //based on the boolExpr retrieve value from 2nd or 3rd spot
   //checks type to find out what to set result as
   if (boolExpr->i == 1) //true
   {
     result = car(cdr(args));
   }
-  else if (boolExpr->i == 0) //false
+  else // if (boolExpr->i == 0) //false
   {
     result = car(cdr(cdr(args)));
-  }
-  else // must be error
-  {
-     texit(1);
   }
   return result;
 }
